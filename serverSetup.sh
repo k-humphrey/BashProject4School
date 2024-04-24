@@ -44,16 +44,34 @@ do
     intLengthSP=$(echo ${arrPResults} | jq 'length')
     intCurrentSP=0
     # echo ${intLengthSP}
+
     # loop through software packages, installing them and updating logs
     while [ ${intCurrentSP} -lt ${intLengthSP} ];
     do
        sudo apt-get install $(echo ${arrPResults} | jq -r .[${intCurrentSP}].install)
        echo "" >> ${strTicketID}.log
        strPackageName=$(echo ${arrPResults} | jq -r .[${intCurrentSP}].name)
-       echo "Software Package - ${strPackageName} - "$(date +"%d-%b-%Y %H:%M:%S") >> ${strTicketID}.log
-
+       echo "SoftwarePackage - ${strPackageName} - "$(date +"%d-%b-%Y %H:%M:%S") >> ${strTicketID}.log
       ((intCurrentSP++))
     done
+    
+   # set up for a loop within additional config
+    arrAResults=$(echo ${arrResults} | jq .[${intCurrent}].additionalConfigs)
+    intLengthAC=$(echo ${arrAResults} | jq 'length')
+    intCurrentAC=0
+    # echo ${intLengthAC}
+
+    # loop through additional configs, calling them and updating logs
+    while [ ${intCurrentAC} -lt ${intLengthAC} ];
+    do
+       strConfig=$(echo ${arrAResults} | jq -r .[${intCurrentAC}].config)
+       sudo ${strConfig}
+       echo "" >> ${strTicketID}.log
+       strConfigName=$(echo ${arrAResults} | jq -r .[${intCurrentAC}].name)
+       echo "additionalConfig - ${strConfigName} - "$(date +"%d-%b-%Y %H:%M:%S") >> ${strTicketID}.log
+      ((intCurrentAC++))
+    done
+
   fi
   ((intCurrent++))
 done
