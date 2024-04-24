@@ -7,9 +7,8 @@
 strExternalIP=$1
 strTicketID=$2
 
-#create a directory for the logs, or just go into it if it exists and create log file
+#create a directory for the logs, or just go into it if it exists
 mkdir -p configurationLogs && cd configurationLogs
-touch ${strTicketID}.log
 
 # debugstatements
 # echo ${strExternalIP} ${strTicketID}
@@ -18,19 +17,23 @@ touch ${strTicketID}.log
 arrResults=$(curl https://www.swollenhippo.com/ServiceNow/systems/devTickets.php | jq)
 intLength=$(echo ${arrResults} | jq 'length')
 intCurrent=0
-intStopper=$((intLength - 1))
+intStopper=0
 # echo "$arrResults"
 # echo $intLength
+# echo $intStopper
 
 while [ ${intCurrent} -lt ${intLength} ];
 do
   # parse curl for each index (ticket) and compare the ticketID to the one requested
-  if [ $(echo ${arrResults} | jq .[${intCurrent}].ticketID) == ${strTicketID} ]; then
-    echo found it
-  elif [ ${intCurrent} -eq ${intStopper} ]; then
-    echo "Error: ticket ID ${strTicketID} not found. exiting."
-    exit 1
+  strCurrentTicket=$(echo ${arrResults} | jq .[${intCurrent}].ticketID)
+  if [ ${strCurrentTicket} == ${strTicketID} ]; then
+    ((intStopper++))
   fi
-  
   ((intCurrent++))
 done
+
+#if stopper was never turned on (1)
+if [ ${intStopper} -lt 1 ]; then
+    echo "Error: ticket ID ${strTicketID} not found."
+    exit 1
+fi
