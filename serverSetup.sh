@@ -18,11 +18,19 @@ touch ${strTicketID}.log
 arrResults=$(curl https://www.swollenhippo.com/ServiceNow/systems/devTickets.php | jq)
 intLength=$(echo ${arrResults} | jq 'length')
 intCurrent=0
-
+intStopper=$((intLength - 1))
 # echo "$arrResults"
 # echo $intLength
 
 while [ ${intCurrent} -lt ${intLength} ];
 do
+  # parse curl for each index (ticket) and compare the ticketID to the one requested
+  if [ $(echo ${arrResults} | jq .[${intCurrent}].ticketID) == ${strTicketID} ]; then
+    echo found it
+  elif [ ${intCurrent} -eq ${intStopper} ]; then
+    echo "Error: ticket ID ${strTicketID} not found. exiting."
+    exit 1
+  fi
+  
   ((intCurrent++))
 done
