@@ -27,7 +27,17 @@ do
   # parse curl for each index (ticket) and compare the ticketID to the one requested
   strCurrentTicket=$(echo ${arrResults} | jq .[${intCurrent}].ticketID)
   if [ ${strCurrentTicket} == ${strTicketID} ]; then
-    ((intStopper++))
+    ((intStopper++)) #just means key was found
+
+    # adding top information to file
+    touch ${strTicketID}.log
+    echo "TicketID: ${strTicketID}" >> ${strTicketID}.log
+    echo "Start DateTime: "$(date +"%d-%b-%Y %H:%M") >> ${strTicketID}.log
+    echo "Requestor: "$(echo ${arrResults} | jq -r .[${intCurrent}].requestor) >> ${strTicketID}.log
+    echo "External IP Address: ${strExternalIP}" >> ${strTicketID}.log
+    echo "Hostname: "$(hostname -s) >> ${strTicketID}.log
+    echo "Standard Configuration: "$(echo ${arrResults} | jq -r .[${intCurrent}].standardConfig) >> ${strTicketID}.log
+
   fi
   ((intCurrent++))
 done
