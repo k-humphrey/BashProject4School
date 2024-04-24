@@ -15,4 +15,14 @@ touch ${strTicketID}.log
 # echo ${strExternalIP} ${strTicketID}
 
 # Now, we have to use the webservice to get ticket info
+arrResults=$(curl https://www.swollenhippo.com/ServiceNow/systems/devTickets.php | jq)
+intLength=$(echo ${arrResults} | jq 'length')
+intCurrent=0
 
+# echo "$arrResults"
+# echo $intLength
+
+while [ ${intCurrent} -lt ${intLength} ];
+do
+  ((intCurrent++))
+done
