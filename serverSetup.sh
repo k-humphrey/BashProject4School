@@ -38,6 +38,22 @@ do
     echo "Hostname: "$(hostname -s) >> ${strTicketID}.log
     echo "Standard Configuration: "$(echo ${arrResults} | jq -r .[${intCurrent}].standardConfig) >> ${strTicketID}.log
 
+    # Time for server configuration
+    # set up for a loop within software Packages
+    arrPResults=$(echo ${arrResults} | jq .[${intCurrent}].softwarePackages)
+    intLengthSP=$(echo ${arrPResults} | jq 'length')
+    intCurrentSP=0
+    # echo ${intLengthSP}
+    # loop through software packages, installing them and updating logs
+    while [ ${intCurrentSP} -lt ${intLengthSP} ];
+    do
+       sudo apt-get install $(echo ${arrPResults} | jq -r .[${intCurrentSP}].install)
+       echo "" >> ${strTicketID}.log
+       strPackageName=$(echo ${arrPResults} | jq -r .[${intCurrentSP}].name)
+       echo "Software Package - ${strPackageName} - "$(date +"%d-%b-%Y %H:%M:%S") >> ${strTicketID}.log
+
+      ((intCurrentSP++))
+    done
   fi
   ((intCurrent++))
 done
