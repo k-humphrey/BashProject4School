@@ -80,13 +80,21 @@ do
     while [ ${intCurrentSP} -lt ${intLengthSP} ];
     do
        strInstall=$(echo ${arrPResults} | jq -r .[${intCurrentSP}].install)
-       echo "$strInstall"
+       #echo "$strInstall"
        strVersion=$(apt show ${strInstall} | grep Version)
-       echo "$strVersion"
+       #echo "$strVersion"
        strPackageName=$(echo ${arrPResults} | jq -r .[${intCurrentSP}].name)
        echo "Version Check - ${strPackageName} - ${strVersion} " >> ${strTicketID}.log
       ((intCurrentSP++))
     done
+
+    # curl other webservice to close ticket
+    echo "" >> ${strTicketID}.log
+    echo $(curl https://www.swollenhippo.com/ServiceNow/systems/devTickets/completed.php?TicketID=${strTicketID} | jq -r .outcome) >> ${strTicketID}.log
+
+    #print date finished :)
+    echo "" >> ${strTicketID}.log
+    echo "Completed: "$(date +"%d-%b-%Y %H:%M:%S") >> ${strTicketID}.log
   fi
   ((intCurrent++))
 done
