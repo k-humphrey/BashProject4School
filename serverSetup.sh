@@ -45,16 +45,16 @@ do
     intCurrentSP=0
     # echo ${intLengthSP}
 
+    echo "" >> ${strTicketID}.log
     # loop through software packages, installing them and updating logs
     while [ ${intCurrentSP} -lt ${intLengthSP} ];
     do
        sudo apt-get install $(echo ${arrPResults} | jq -r .[${intCurrentSP}].install)
-       echo "" >> ${strTicketID}.log
        strPackageName=$(echo ${arrPResults} | jq -r .[${intCurrentSP}].name)
        echo "SoftwarePackage - ${strPackageName} - "$(date +"%d-%b-%Y %H:%M:%S") >> ${strTicketID}.log
       ((intCurrentSP++))
     done
-    
+
    # set up for a loop within additional config
     arrAResults=$(echo ${arrResults} | jq .[${intCurrent}].additionalConfigs)
     intLengthAC=$(echo ${arrAResults} | jq 'length')
@@ -66,12 +66,27 @@ do
     do
        strConfig=$(echo ${arrAResults} | jq -r .[${intCurrentAC}].config)
        sudo ${strConfig}
-       echo "" >> ${strTicketID}.log
        strConfigName=$(echo ${arrAResults} | jq -r .[${intCurrentAC}].name)
        echo "additionalConfig - ${strConfigName} - "$(date +"%d-%b-%Y %H:%M:%S") >> ${strTicketID}.log
       ((intCurrentAC++))
     done
 
+    echo "" >> ${strTicketID}.log
+    # now we need to do version checks
+    intCurrentSP=0
+    intCurrentAC=0
+
+    # loop through software packages, checking version and updating logs DOESNT WORK
+    while [ ${intCurrentSP} -lt ${intLengthSP} ];
+    do
+       strInstall=$(echo ${arrPResults} | jq -r .[${intCurrentSP}].install)
+       echo "$strInstall"
+       strVersion=$(apt show ${strInstall} | grep Version)
+       echo "$strVersion"
+       strPackageName=$(echo ${arrPResults} | jq -r .[${intCurrentSP}].name)
+       echo "Version Check - ${strPackageName} - ${strVersion} " >> ${strTicketID}.log
+      ((intCurrentSP++))
+    done
   fi
   ((intCurrent++))
 done
