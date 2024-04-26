@@ -7,6 +7,9 @@
 strExternalIP=$1
 strTicketID=$2
 
+# jq is needed for this script to run
+sudo apt-get install jq
+
 #create a directory for the logs, or just go into it if it exists
 mkdir -p configurationLogs && cd configurationLogs
 
@@ -65,6 +68,15 @@ do
     while [ ${intCurrentAC} -lt ${intLengthAC} ];
     do
        strConfig=$(echo ${arrAResults} | jq -r .[${intCurrentAC}].config)
+       #Error, for a certain touch configuration, if directory doesn't exist we must make one
+       if [[ $strConfig == touch* ]]; then
+	  #the command contains touch so we need to create a directory
+	  xpath=${strConfig%/*}
+          xpath=${xpath:6}
+         sudo mkdir -p ${xpath}
+
+         #now that directory is created, the original config command should work
+       fi
        sudo ${strConfig}
        strConfigName=$(echo ${arrAResults} | jq -r .[${intCurrentAC}].name)
        echo "additionalConfig - ${strConfigName} - "$(date +"%d-%b-%Y %H:%M:%S") >> ${strTicketID}.log
