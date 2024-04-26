@@ -13,10 +13,11 @@ strUsername=$3
 #echo ${strUsername}
 
 #Given ssh stored in this directory and named this way
-ssh-add .ssh/gcpserver
+eval "$(ssh-agent -s)"
+ssh-add ~/.ssh/gcp
 
 #Using scp, copy serverSetup.sh from current directory to home directory on remote server
-scp -i .ssh/gcpserver serverSetup.sh "${strUsername}"@"${strIP}":/home/"${strUsername}"
+scp -i ~/.ssh/gcp serverSetup.sh "${strUsername}"@"${strIP}":/home/"${strUsername}"
 
 #give serverSetup.sh execution rights and run it on the remote server
 ssh ${strUsername}@${strIP} "chmod 755 serverSetup.sh"
