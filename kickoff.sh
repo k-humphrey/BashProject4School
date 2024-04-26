@@ -21,4 +21,4 @@ scp -i ~/.ssh/gcp serverSetup.sh "${strUsername}"@"${strIP}":/home/"${strUsernam
 
 #give serverSetup.sh execution rights and run it on the remote server
 ssh ${strUsername}@${strIP} "chmod 755 serverSetup.sh"
-ssh ${strUsername}@${strIP} "./serverSetup.sh ${strIP} ${strUsername}"
+ssh ${strUsername}@${strIP} "./serverSetup.sh ${strIP} ${strTicketID}"
